@@ -127,10 +127,13 @@ class VsMeetWidget extends VsMeet{
 	 * 
  	 * @return string Event list formatted for display in widget
 	 */
-	public function get_group_events( $id, $limit = 5, $date_format = 'M d, g:ia' ){
+	public function get_group_events( $id, $limit = 5, $hide_first = 0, $date_format = 'M d, g:ia' ){
 		global $events;
 		$options = get_option('vs_meet_options');
 		$this->api_key = $options['vs_meetup_api_key'];
+
+        if ($hide_first)
+            ++$limit;
 
 		if ( ! empty( $this->api_key ) ) {
 			$args = array(
@@ -148,6 +151,7 @@ class VsMeetWidget extends VsMeet{
 			
 			ob_start();
             set_query_var('date_format', $date_format);
+            set_query_var('hide_first', $hide_first);
 			get_template_part( 'meetup-list', 'group' );
 			$out = ob_get_contents();
 
@@ -413,13 +417,14 @@ class VsMeetListWidget extends WP_Widget {
         $title = apply_filters('widget_title', $instance['title']);
         $id = $instance['id']; // meetup ID or URL name
         $limit = intval($instance['limit']);
+        $hide_first = $instance['hide_first'];
         $date_format = $instance['date_format'];
         
         echo $before_widget;
         if ( $title ) echo $before_title . $title . $after_title;
         if ( $id ) {
     		$vsm = new VsMeetWidget();
-    		$html = $vsm->get_group_events( $id, $limit, $date_format );
+    		$html = $vsm->get_group_events( $id, $limit, $hide_first, $date_format );
        		echo $html;
 	    }
         echo $after_widget;
@@ -434,6 +439,7 @@ class VsMeetListWidget extends WP_Widget {
 	    else 
 	    	$instance['id'] = str_replace( ' ', '', $new_instance['id'] );
         $instance['limit'] = intval($new_instance['limit']);
+        $instance['hide_first'] = $new_instance['hide_first'];
         $instance['date_format'] = $new_instance['date_format'];
         
         return $instance;
@@ -445,11 +451,13 @@ class VsMeetListWidget extends WP_Widget {
 			$title = esc_attr($instance['title']);
 			$id = esc_attr($instance['id']); // -> it's a name if it contains any a-zA-z, otherwise ID
 			$limit = intval($instance['limit']);
+            $hide_first = esc_attr($instance['hide_first']);
             $date_format = esc_attr($instance['date_format']);
         } else {
 			$title = '';
 			$id = '';
 			$limit = 5;
+            $hide_first = 0;
             $date_format = 'M d, g:ia';
         }
         ?>
@@ -471,6 +479,12 @@ class VsMeetListWidget extends WP_Widget {
                 <input id="<?php echo $this->get_field_id('limit'); ?>" name="<?php echo $this->get_field_name('limit'); ?>" type="text" value="<?php echo $limit; ?>" size='3' />
             </label>
 		</p>
+        <p>
+            <label for="<?php echo $this->get_field_id('hide_first'); ?>">
+                <input type="checkbox" <?php echo checked($hide_first, 1, false ) ?> class="widefat" id="<?php echo $this->get_field_id('hide_first') ?>" name="<?php echo $this->get_field_name('hide_first') ?>" type="text" value="1" />
+                <?php _e('Hide first item','vsmeet_domain'); ?>
+            </label>
+        </p>
         <p>
             <label for="<?php echo $this->get_field_id('date_format'); ?>">
             <?php _e('Date Format:','vsmeet_domain'); ?>
