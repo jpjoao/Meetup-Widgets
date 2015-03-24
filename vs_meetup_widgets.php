@@ -376,18 +376,24 @@ class VsMeetSingleWidget extends WP_Widget {
             $date_format = 'F d, Y @ g:i a';
         }
         ?>
-        <p><label for="<?php echo $this->get_field_id('title'); ?>">
+        <p>
+            <label for="<?php echo $this->get_field_id('title'); ?>">
             <?php _e('Title:','vsmeet_domain'); ?>
-            <input class="widefat" id="<?php echo $this->get_field_id('title'); ?>" name="<?php echo $this->get_field_name('title'); ?>" type="text" value="<?php echo $title; ?>" />
-        </label></p>
-        <p><label for="<?php echo $this->get_field_id('id'); ?>">
+                <input class="widefat" id="<?php echo $this->get_field_id('title'); ?>" name="<?php echo $this->get_field_name('title'); ?>" type="text" value="<?php echo $title; ?>" />
+            </label>
+        </p>
+        <p>
+            <label for="<?php echo $this->get_field_id('id'); ?>">
 		    <?php _e('Event ID:','vsmeet_domain'); ?>
-		    <input class="widefat" id="<?php echo $this->get_field_id('id'); ?>" name="<?php echo $this->get_field_name('id'); ?>" type="text" value="<?php echo $id; ?>" />
-        </label></p>
-        <p><label for="<?php echo $this->get_field_id('date_format'); ?>">
+		        <input class="widefat" id="<?php echo $this->get_field_id('id'); ?>" name="<?php echo $this->get_field_name('id'); ?>" type="text" value="<?php echo $id; ?>" />
+            </label>
+        </p>
+        <p>
+            <label for="<?php echo $this->get_field_id('date_format'); ?>">
             <?php _e('Date Format:','vsmeet_domain'); ?>
-            <input class="widefat" id="<?php echo $this->get_field_id('date_format'); ?>" name="<?php echo $this->get_field_name('date_format'); ?>" type="text" value="<?php echo $date_format; ?>" />
-        </label></p>
+                <input class="widefat" id="<?php echo $this->get_field_id('date_format'); ?>" name="<?php echo $this->get_field_name('date_format'); ?>" type="text" value="<?php echo $date_format; ?>" />
+            </label>
+        </p>
     <?php }
 } // class VsMeetSingleWidget
 
@@ -447,24 +453,30 @@ class VsMeetListWidget extends WP_Widget {
             $date_format = 'M d, g:ia';
         }
         ?>
-        <p><label for="<?php echo $this->get_field_id('title'); ?>">
+        <p>
+            <label for="<?php echo $this->get_field_id('title'); ?>">
             <?php _e('Title:','vsmeet_domain'); ?>
-            <input class="widefat" id="<?php echo $this->get_field_id('title'); ?>" name="<?php echo $this->get_field_name('title'); ?>" type="text" value="<?php echo $title; ?>" />
-        </label></p>
-        <p><label for="<?php echo $this->get_field_id('id'); ?>">
+                <input class="widefat" id="<?php echo $this->get_field_id('title'); ?>" name="<?php echo $this->get_field_name('title'); ?>" type="text" value="<?php echo $title; ?>" />
+            </label>
+        </p>
+        <p>
+            <label for="<?php echo $this->get_field_id('id'); ?>">
 		    <?php _e('Group ID:','vsmeet_domain'); ?>
-		    <input class="widefat" id="<?php echo $this->get_field_id('id'); ?>" name="<?php echo $this->get_field_name('id'); ?>" type="text" value="<?php echo $id; ?>" />
-        </label></p>
+		        <input class="widefat" id="<?php echo $this->get_field_id('id'); ?>" name="<?php echo $this->get_field_name('id'); ?>" type="text" value="<?php echo $id; ?>" />
+        </label>
+        </p>
         <p>
         	<label for="<?php echo $this->get_field_id('limit'); ?>">
-            	<?php _e('Number of events to show:','vsmeet_domain');?>
+            <?php _e('Number of events to show:','vsmeet_domain');?>
+                <input id="<?php echo $this->get_field_id('limit'); ?>" name="<?php echo $this->get_field_name('limit'); ?>" type="text" value="<?php echo $limit; ?>" size='3' />
             </label>
-            <input id="<?php echo $this->get_field_id('limit'); ?>" name="<?php echo $this->get_field_name('limit'); ?>" type="text" value="<?php echo $limit; ?>" size='3' />
 		</p>
-        <p><label for="<?php echo $this->get_field_id('date_format'); ?>">
-                <?php _e('Date Format:','vsmeet_domain'); ?>
+        <p>
+            <label for="<?php echo $this->get_field_id('date_format'); ?>">
+            <?php _e('Date Format:','vsmeet_domain'); ?>
                 <input class="widefat" id="<?php echo $this->get_field_id('date_format'); ?>" name="<?php echo $this->get_field_name('date_format'); ?>" type="text" value="<?php echo $date_format; ?>" />
-        </label></p>
+            </label>
+        </p>
     <?php }
 } // class VsMeetListWidget
 
@@ -514,15 +526,17 @@ class VsMeetUserListWidget extends WP_Widget {
 			$limit = 5;
         }
         ?>
-        <p><label for="<?php echo $this->get_field_id('title'); ?>">
+        <p>
+            <label for="<?php echo $this->get_field_id('title'); ?>">
             <?php _e('Title:','vsmeet_domain'); ?>
-            <input class="widefat" id="<?php echo $this->get_field_id('title'); ?>" name="<?php echo $this->get_field_name('title'); ?>" type="text" value="<?php echo $title; ?>" />
-        </label></p>
+                <input class="widefat" id="<?php echo $this->get_field_id('title'); ?>" name="<?php echo $this->get_field_name('title'); ?>" type="text" value="<?php echo $title; ?>" />
+            </label>
+        </p>
         <p>
         	<label for="<?php echo $this->get_field_id('limit'); ?>">
-            	<?php _e('Number of events to show:','vsmeet_domain');?>
+           	<?php _e('Number of events to show:','vsmeet_domain');?>
+                <input id="<?php echo $this->get_field_id('limit'); ?>" name="<?php echo $this->get_field_name('limit'); ?>" type="text" value="<?php echo $limit; ?>" size='3' />
             </label>
-            <input id="<?php echo $this->get_field_id('limit'); ?>" name="<?php echo $this->get_field_name('limit'); ?>" type="text" value="<?php echo $limit; ?>" size='3' />
         </p>
         <p class="description">This widget automatically pulls events from the user who created the API key.</p>
     <?php }
