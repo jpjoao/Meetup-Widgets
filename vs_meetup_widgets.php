@@ -77,7 +77,8 @@ class VsMeetWidget extends VsMeet{
 	/**
 	 * Get a single event, with a link to RSVP (OAuth, new tiny window).
 	 * 
-	 * @param string $id Event ID
+	 * @param string $id            Event ID
+     * @param string  $date_format  Format to display the event date
 	 * 
 	 * @return string Event details formatted for display in widget
 	 */
@@ -122,8 +123,10 @@ class VsMeetWidget extends VsMeet{
 	/**
 	 * Get the HTML for a group's events via Meetup API
 	 * 
-	 * @param string  $id    Meetup ID or URL name
-	 * @param string  $limit Number of events to display, default 5.
+	 * @param string  $id           Meetup ID or URL name
+	 * @param int     $limit        Number of events to display, default 5.
+     * @param int     $hide_first   Display or not the first item in the list
+     * @param string  $date_format  Format to display the event date
 	 * 
  	 * @return string Event list formatted for display in widget
 	 */
@@ -221,7 +224,8 @@ class VsMeetWidget extends VsMeet{
     /**
      * Get the HTML for a the next group's events via Meetup API
      *
-     * @param string  $id    Meetup ID or URL name
+     * @param string  $id           Meetup ID or URL name
+     * @param string  $date_format  Format to display the event date
      *
      * @return string Event item formatted for display in widget
      */
