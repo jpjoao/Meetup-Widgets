@@ -81,7 +81,7 @@ class VsMeetWidget extends VsMeet{
 	 * 
 	 * @return string Event details formatted for display in widget
 	 */
-	public function get_single_event( $id ){
+	public function get_single_event( $id, $date_format = 'F d, Y @ g:i a' ){
 		global $event;
 		$options = get_option( 'vs_meet_options' );
 		$this->api_key = $options['vs_meetup_api_key'];
@@ -99,6 +99,7 @@ class VsMeetWidget extends VsMeet{
 			$template = '';
 			if ( isset( $event->group ) && isset( $event->group->urlname ) ) 
 				$template = $event->group->urlname;
+            set_query_var('date_format', $date_format);
 			get_template_part( 'meetup-single', apply_filters( 'vsm_single_template', $template, $event ) );
 			$out = ob_get_contents();
 
@@ -342,11 +343,12 @@ class VsMeetSingleWidget extends WP_Widget {
         extract( $args );
         $title = apply_filters('widget_title', $instance['title']);
         $id = $instance['id'];
+        $date_format = $instance['date_format'];
         echo $before_widget;
         if ( $title ) echo $before_title . $title . $after_title;
         if ( $id ) {
     		$vsm = new VsMeetWidget();
-    		$html = $vsm->get_single_event($id);
+    		$html = $vsm->get_single_event($id, $date_format);
     		echo $html;
 	    }
         echo $after_widget;
@@ -357,6 +359,7 @@ class VsMeetSingleWidget extends WP_Widget {
         $instance = $old_instance;
         $instance['title'] = strip_tags($new_instance['title']);
         $instance['id'] = strip_tags($new_instance['id']);
+        $instance['date_format'] = $new_instance['date_format'];
         
         return $instance;
     }
@@ -366,9 +369,11 @@ class VsMeetSingleWidget extends WP_Widget {
         if ( $instance ) {
 			$title = esc_attr($instance['title']);
 			$id = esc_attr($instance['id']);
+            $date_format = esc_attr($instance['date_format']);
         } else {
 			$title = '';
 			$id = '';
+            $date_format = 'F d, Y @ g:i a';
         }
         ?>
         <p><label for="<?php echo $this->get_field_id('title'); ?>">
@@ -378,6 +383,10 @@ class VsMeetSingleWidget extends WP_Widget {
         <p><label for="<?php echo $this->get_field_id('id'); ?>">
 		    <?php _e('Event ID:','vsmeet_domain'); ?>
 		    <input class="widefat" id="<?php echo $this->get_field_id('id'); ?>" name="<?php echo $this->get_field_name('id'); ?>" type="text" value="<?php echo $id; ?>" />
+        </label></p>
+        <p><label for="<?php echo $this->get_field_id('date_format'); ?>">
+            <?php _e('Date Format:','vsmeet_domain'); ?>
+            <input class="widefat" id="<?php echo $this->get_field_id('date_format'); ?>" name="<?php echo $this->get_field_name('date_format'); ?>" type="text" value="<?php echo $date_format; ?>" />
         </label></p>
     <?php }
 } // class VsMeetSingleWidget

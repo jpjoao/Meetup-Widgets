@@ -1,7 +1,7 @@
 <?php 
 global $event; 
 if ( isset( $event->time ) ) {
-	$date = date( 'F d, Y @ g:i a', intval( $event->time/1000 + $event->utc_offset/1000 ) );
+	$date = date( $date_format, intval( $event->time/1000 + $event->utc_offset/1000 ) );
 } else {
 	$date = apply_filters( 'vsm_no_date_text', '' );
 }
