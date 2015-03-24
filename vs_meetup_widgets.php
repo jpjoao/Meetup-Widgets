@@ -126,7 +126,7 @@ class VsMeetWidget extends VsMeet{
 	 * 
  	 * @return string Event list formatted for display in widget
 	 */
-	public function get_group_events( $id, $limit = 5 ){
+	public function get_group_events( $id, $limit = 5, $date_format = 'M d, g:ia' ){
 		global $events;
 		$options = get_option('vs_meet_options');
 		$this->api_key = $options['vs_meetup_api_key'];
@@ -146,6 +146,7 @@ class VsMeetWidget extends VsMeet{
 				return;
 			
 			ob_start();
+            set_query_var('date_format', $date_format);
 			get_template_part( 'meetup-list', 'group' );
 			$out = ob_get_contents();
 
@@ -396,13 +397,14 @@ class VsMeetListWidget extends WP_Widget {
         extract( $args );
         $title = apply_filters('widget_title', $instance['title']);
         $id = $instance['id']; // meetup ID or URL name
-        $limit = intval($instance['limit']); 
+        $limit = intval($instance['limit']);
+        $date_format = $instance['date_format'];
         
         echo $before_widget;
         if ( $title ) echo $before_title . $title . $after_title;
         if ( $id ) {
     		$vsm = new VsMeetWidget();
-    		$html = $vsm->get_group_events( $id, $limit );
+    		$html = $vsm->get_group_events( $id, $limit, $date_format );
        		echo $html;
 	    }
         echo $after_widget;
@@ -416,7 +418,8 @@ class VsMeetListWidget extends WP_Widget {
 	        $instance['id'] = sanitize_title( $new_instance['id'] );
 	    else 
 	    	$instance['id'] = str_replace( ' ', '', $new_instance['id'] );
-        $instance['limit'] = intval($new_instance['limit']); 
+        $instance['limit'] = intval($new_instance['limit']);
+        $instance['date_format'] = $new_instance['date_format'];
         
         return $instance;
     }
@@ -426,11 +429,13 @@ class VsMeetListWidget extends WP_Widget {
         if ( $instance ) {
 			$title = esc_attr($instance['title']);
 			$id = esc_attr($instance['id']); // -> it's a name if it contains any a-zA-z, otherwise ID
-			$limit = intval($instance['limit']); 
+			$limit = intval($instance['limit']);
+            $date_format = esc_attr($instance['date_format']);
         } else {
 			$title = '';
 			$id = '';
 			$limit = 5;
+            $date_format = 'M d, g:ia';
         }
         ?>
         <p><label for="<?php echo $this->get_field_id('title'); ?>">
@@ -447,6 +452,10 @@ class VsMeetListWidget extends WP_Widget {
             </label>
             <input id="<?php echo $this->get_field_id('limit'); ?>" name="<?php echo $this->get_field_name('limit'); ?>" type="text" value="<?php echo $limit; ?>" size='3' />
 		</p>
+        <p><label for="<?php echo $this->get_field_id('date_format'); ?>">
+                <?php _e('Date Format:','vsmeet_domain'); ?>
+                <input class="widefat" id="<?php echo $this->get_field_id('date_format'); ?>" name="<?php echo $this->get_field_name('date_format'); ?>" type="text" value="<?php echo $date_format; ?>" />
+        </label></p>
     <?php }
 } // class VsMeetListWidget
 
