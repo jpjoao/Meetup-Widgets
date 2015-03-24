@@ -111,6 +111,8 @@ function meetup_widgets_start() {
 add_action('widgets_init', create_function('', 'return register_widget("VsMeetSingleWidget");'));
 add_action('widgets_init', create_function('', 'return register_widget("VsMeetListWidget");'));
 add_action('widgets_init', create_function('', 'return register_widget("VsMeetUserListWidget");'));
+add_action('widgets_init', create_function('', 'return register_widget("VsMeetNextSingleWidget");'));
+
 
 function vsmw_need_oauth() {
 	echo '<div id="message" class="updated"><p>Some functionality of <strong>Meetup Login</strong> requires <strong><a href="http://php.net/manual/en/book.oauth.php">OAuth</a></strong>, which is not detected on this server. RSVPing from this site is disabled - RSVP links will instead bring you to the event on Meetup.com.</p></div>';

@@ -218,6 +218,58 @@ class VsMeetWidget extends VsMeet{
 		return $out;
 	}
 
+    /**
+     * Get the HTML for a the next group's events via Meetup API
+     *
+     * @param string  $id    Meetup ID or URL name
+     *
+     * @return string Event item formatted for display in widget
+     */
+    public function get_group_next_event( $id, $date_format = 'F d, Y @ g:i a' ){
+        global $event;
+        $options = get_option('vs_meet_options');
+        $this->api_key = $options['vs_meetup_api_key'];
+
+        if ( ! empty( $this->api_key ) ) {
+            $args = array(
+                'status' => 'upcoming',
+                'page' => 1,
+            );
+            if ( preg_match('/[a-zA-Z]/', $id ) )
+                $args['group_urlname'] = $id;
+            else
+                $args['group_id'] = $id;
+
+            $events = $this->get_data( $args, 'vsm_group_next_event_'.$id.'_1' );
+            if ( ! $events )
+                return;
+
+            $event = array_pop($events);
+
+            ob_start();
+            $template = '';
+            if ( isset( $event->group ) && isset( $event->group->urlname ) )
+                $template = $event->group->urlname;
+            set_query_var('date_format', $date_format);
+            get_template_part( 'meetup-single', apply_filters( 'vsm_single_template', $template, $event ) );
+            $out = ob_get_contents();
+
+            if ( empty( $out ) ) {
+                // grab the template included in plugin
+                if ( file_exists( dirname(__FILE__).'/meetup-single.php' ) )
+                    load_template( dirname(__FILE__).'/meetup-single.php', false );
+                $out = ob_get_contents();
+            }
+
+            ob_end_clean();
+
+        } else {
+            if ( is_user_logged_in() )
+                $out = '<p><a href="'.admin_url('options-general.php').'">Please enter an API key</a></p>';
+        }
+        return $out;
+    }
+
 	/**
 	 * Create the event RSVP popup
 	 */
@@ -555,3 +607,76 @@ class VsMeetUserListWidget extends WP_Widget {
         <p class="description">This widget automatically pulls events from the user who created the API key.</p>
     <?php }
 } // class VsMeetUserListWidget
+
+
+/**
+ * VsMeet extends the widget class to display the next event for a specific meetup group.
+ */
+class VsMeetNextSingleWidget extends WP_Widget {
+    /** constructor */
+    function VsMeetNextSingleWidget() {
+        parent::WP_Widget(false, $name = __('Meetup List Next Event','vsmeet_domain'), array('description' => __("Display the next single events.",'vsmeet_domain')));
+    }
+
+    /** @see WP_Widget::widget */
+    function widget($args, $instance) {
+        extract( $args );
+        $title = apply_filters('widget_title', $instance['title']);
+        $id = $instance['id']; // meetup ID or URL name
+        $date_format = $instance['date_format'];
+
+        echo $before_widget;
+        if ( $title ) echo $before_title . $title . $after_title;
+        if ( $id ) {
+            $vsm = new VsMeetWidget();
+            $html = $vsm->get_group_next_event( $id, $date_format );
+            echo $html;
+        }
+        echo $after_widget;
+    }
+
+    /** @see WP_Widget::update */
+    function update($new_instance, $old_instance) {
+        $instance = $old_instance;
+        $instance['title'] = strip_tags($new_instance['title']);
+        if ( preg_match('/[a-zA-Z]/', $new_instance['id'] ) )
+            $instance['id'] = sanitize_title( $new_instance['id'] );
+        else
+            $instance['id'] = str_replace( ' ', '', $new_instance['id'] );
+        $instance['date_format'] = $new_instance['date_format'];
+
+        return $instance;
+    }
+
+    /** @see WP_Widget::form */
+    function form($instance) {
+        if ( $instance ) {
+            $title = esc_attr($instance['title']);
+            $id = esc_attr($instance['id']); // -> it's a name if it contains any a-zA-z, otherwise ID
+            $date_format = esc_attr($instance['date_format']);
+        } else {
+            $title = '';
+            $id = '';
+            $date_format = 'F d, Y @ g:i a';
+        }
+        ?>
+        <p>
+            <label for="<?php echo $this->get_field_id('title'); ?>">
+                <?php _e('Title:','vsmeet_domain'); ?>
+                <input class="widefat" id="<?php echo $this->get_field_id('title'); ?>" name="<?php echo $this->get_field_name('title'); ?>" type="text" value="<?php echo $title; ?>" />
+            </label>
+        </p>
+        <p>
+            <label for="<?php echo $this->get_field_id('id'); ?>">
+                <?php _e('Group ID:','vsmeet_domain'); ?>
+                <input class="widefat" id="<?php echo $this->get_field_id('id'); ?>" name="<?php echo $this->get_field_name('id'); ?>" type="text" value="<?php echo $id; ?>" />
+            </label>
+        </p>
+        <p>
+            <label for="<?php echo $this->get_field_id('date_format'); ?>">
+                <?php _e('Date Format:','vsmeet_domain'); ?>
+                <input class="widefat" id="<?php echo $this->get_field_id('date_format'); ?>" name="<?php echo $this->get_field_name('date_format'); ?>" type="text" value="<?php echo $date_format; ?>" />
+            </label>
+        </p>
+    <?php }
+} // class VsMeetNextSingleWidget
