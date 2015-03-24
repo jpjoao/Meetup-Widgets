@@ -32,7 +32,7 @@ class VsMeet {
 		$this->key = $options['vs_meetup_key'];
 		$this->secret = $options['vs_meetup_secret'];
 		$this->api_key = $options['vs_meetup_api_key'];
-		
+
 		register_activation_hook( __FILE__, array ($this, 'install' ) );
 		
 		// TODO deal with translations.
@@ -117,3 +117,20 @@ add_action('widgets_init', create_function('', 'return register_widget("VsMeetNe
 function vsmw_need_oauth() {
 	echo '<div id="message" class="updated"><p>Some functionality of <strong>Meetup Login</strong> requires <strong><a href="http://php.net/manual/en/book.oauth.php">OAuth</a></strong>, which is not detected on this server. RSVPing from this site is disabled - RSVP links will instead bring you to the event on Meetup.com.</p></div>';
 }
+
+//Translations
+global $_meetup_widget;
+$_meetup_widget['en_US'] = array(
+    'attendee' => 'attendee',
+    'attendees' => 'attendees',
+    'rsvp' => 'RSVP?',
+    'location' => 'Location',
+    'tba' => 'TBA',
+);
+$_meetup_widget['pt_BR'] = array(
+    'attendee' => 'confirmado',
+    'attendees' => 'confirmados',
+    'rsvp' => 'RSVP?',
+    'location' => 'Local',
+    'tba' => 'a definir',
+);
