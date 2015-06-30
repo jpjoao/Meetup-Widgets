@@ -112,6 +112,7 @@ add_action('widgets_init', create_function('', 'return register_widget("VsMeetSi
 add_action('widgets_init', create_function('', 'return register_widget("VsMeetListWidget");'));
 add_action('widgets_init', create_function('', 'return register_widget("VsMeetUserListWidget");'));
 add_action('widgets_init', create_function('', 'return register_widget("VsMeetNextSingleWidget");'));
+add_action('widgets_init', create_function('', 'return register_widget("VsMeetGroupsListWidget");'));
 
 
 function vsmw_need_oauth() {

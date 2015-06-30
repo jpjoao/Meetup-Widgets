@@ -274,6 +274,89 @@ class VsMeetWidget extends VsMeet{
         return $out;
     }
 
+
+    /**
+     * Get the HTML for groups events via Meetup API
+     *
+     * @param string  $id               Meetup ID or URL name
+     * @param int     $limit            Number of events to display, default 5.
+     * @param int     $highlight_first  Highlight or not the first item in the list
+     * @param string  $date_format      Format to display the event date
+     *
+     * @return string Event list formatted for display in widget
+     */
+    public function get_groups_events( $ids, $limit = 10, $highlight_first = true, $date_format = 'd/m/Y @ g:i a' ){
+        global $events;
+
+        $events = array();
+
+        $options = get_option('vs_meet_options');
+        $this->api_key = $options['vs_meetup_api_key'];
+
+        if ( ! empty( $this->api_key ) ) {
+            $args = array(
+                'status' => 'upcoming',
+                'page' => $limit,
+            );
+
+            if (strpos($ids, ',') !== false)
+            {
+                $ids = explode(',', $ids);
+            }
+            else
+            {
+                $ids = array($ids);
+            }
+
+            foreach ($ids as $id)
+            {
+                if ( preg_match('/[a-zA-Z]/', $id ) )
+                    $args['group_urlname'] = $id;
+                else
+                    $args['group_id'] = $id;
+
+                $group_events = $this->get_data( $args, 'vsm_group_events_'.$id.'_'.$limit );
+                if ( ! $group_events )
+                {
+                    continue;
+                }
+
+                $events = array_merge($events, $group_events);
+            }
+
+            if ( empty($events) )
+                return;
+
+            //order the events by date
+            usort($events, function ($a, $b) {
+                if ($a->time == $b->time) return 0;
+                return $a->time < $b->time ? -1 : 1;
+            });
+
+            ob_start();
+            set_query_var('date_format', $date_format);
+            set_query_var('highlight_first', $highlight_first);
+            set_query_var('limit', $limit);
+            set_query_var('highlight_group', $ids[0]);
+            get_template_part( 'meetup-list', 'group' );
+            $out = ob_get_contents();
+
+            if ( empty( $out ) ) {
+                // grab the template included in plugin
+                if ( file_exists( dirname(__FILE__).'/meetup-groups-list.php' ) )
+                    load_template( dirname(__FILE__).'/meetup-groups-list.php', false );
+                $out = ob_get_contents();
+            }
+
+            ob_end_clean();
+
+        } else {
+            if ( is_user_logged_in() )
+                $out = '<p><a href="'.admin_url('options-general.php').'">Please enter an API key</a></p>';
+        }
+        return $out;
+    }
+
 	/**
 	 * Create the event RSVP popup
 	 */
@@ -464,18 +547,18 @@ class VsMeetSingleWidget extends WP_Widget {
 class VsMeetListWidget extends WP_Widget {
     /** constructor */
     function VsMeetListWidget() {
-        parent::WP_Widget(false, $name = __('Meetup List Event','vsmeet_domain'), array('description' => __("Display a list of events.",'vsmeet_domain')));	
+        parent::WP_Widget(false, $name = __('Meetup List Event','vsmeet_domain'), array('description' => __("Display a list of events.",'vsmeet_domain')));
     }
 
     /** @see WP_Widget::widget */
-    function widget($args, $instance) {		
+    function widget($args, $instance) {
         extract( $args );
         $title = apply_filters('widget_title', $instance['title']);
         $id = $instance['id']; // meetup ID or URL name
         $limit = intval($instance['limit']);
         $hide_first = $instance['hide_first'];
         $date_format = $instance['date_format'];
-        
+
         echo $before_widget;
         if ( $title ) echo $before_title . $title . $after_title;
         if ( $id ) {
@@ -487,17 +570,17 @@ class VsMeetListWidget extends WP_Widget {
     }
 
     /** @see WP_Widget::update */
-    function update($new_instance, $old_instance) {				
+    function update($new_instance, $old_instance) {
         $instance = $old_instance;
         $instance['title'] = strip_tags($new_instance['title']);
-        if ( preg_match('/[a-zA-Z]/', $new_instance['id'] ) ) 
+        if ( preg_match('/[a-zA-Z]/', $new_instance['id'] ) )
 	        $instance['id'] = sanitize_title( $new_instance['id'] );
-	    else 
+	    else
 	    	$instance['id'] = str_replace( ' ', '', $new_instance['id'] );
         $instance['limit'] = intval($new_instance['limit']);
         $instance['hide_first'] = $new_instance['hide_first'];
         $instance['date_format'] = $new_instance['date_format'];
-        
+
         return $instance;
     }
 
@@ -684,3 +767,93 @@ class VsMeetNextSingleWidget extends WP_Widget {
         </p>
     <?php }
 } // class VsMeetNextSingleWidget
+
+
+/**
+ * VsMeetList extends the widget class to create an event list for a a lsit of meetup groups.
+ */
+class VsMeetGroupsListWidget extends WP_Widget {
+    /** constructor */
+    function VsMeetGroupsListWidget() {
+        parent::WP_Widget(false, $name = __('Meetup Group List Event','vsmeet_domain'), array('description' => __("Display a list of groups' events.",'vsmeet_domain')));
+    }
+
+    /** @see WP_Widget::widget */
+    function widget($args, $instance) {
+        extract( $args );
+        $title = apply_filters('widget_title', $instance['title']);
+        $ids = $instance['ids']; // meetup IDs or URL names
+        $limit = intval($instance['limit']);
+        $highlight_first = $instance['highlight_first'];
+        $date_format = $instance['date_format'];
+
+        echo $before_widget;
+        if ( $title ) echo $before_title . $title . $after_title;
+        if ( $ids ) {
+            $vsm = new VsMeetWidget();
+            $html = $vsm->get_groups_events( $ids, $limit, $highlight_first, $date_format );
+            echo $html;
+        }
+        echo $after_widget;
+    }
+
+    /** @see WP_Widget::update */
+    function update($new_instance, $old_instance) {
+        $instance = $old_instance;
+        $instance['title'] = strip_tags($new_instance['title']);
+        $instance['ids'] = strtolower(str_replace( ' ', '', $new_instance['ids'] ));
+        $instance['limit'] = intval($new_instance['limit']);
+        $instance['highlight_first'] = $new_instance['highlight_first'];
+        $instance['date_format'] = $new_instance['date_format'];
+
+        return $instance;
+    }
+
+    /** @see WP_Widget::form */
+    function form($instance) {
+        if ( $instance ) {
+            $title = esc_attr($instance['title']);
+            $ids = esc_attr($instance['ids']); // -> it's a name if it contains any a-zA-z, otherwise ID
+            $limit = intval($instance['limit']);
+            $highlight_first = esc_attr($instance['highlight_first']);
+            $date_format = esc_attr($instance['date_format']);
+        } else {
+            $title = '';
+            $ids = '';
+            $limit = 10;
+            $highlight_first = 1;
+            $date_format = 'd/m @ H:i';
+        }
+        ?>
+        <p>
+            <label for="<?php echo $this->get_field_id('title'); ?>">
+                <?php _e('Title:','vsmeet_domain'); ?>
+                <input class="widefat" id="<?php echo $this->get_field_id('title'); ?>" name="<?php echo $this->get_field_name('title'); ?>" type="text" value="<?php echo $title; ?>" />
+            </label>
+        </p>
+        <p>
+            <label for="<?php echo $this->get_field_id('ids'); ?>">
+                <?php _e('Group IDs:','vsmeet_domain'); ?>
+                <input class="widefat" id="<?php echo $this->get_field_id('ids'); ?>" name="<?php echo $this->get_field_name('ids'); ?>" type="text" value="<?php echo $ids; ?>" />
+            </label>
+        </p>
+        <p>
+            <label for="<?php echo $this->get_field_id('limit'); ?>">
+                <?php _e('Number of events to show:','vsmeet_domain');?>
+                <input id="<?php echo $this->get_field_id('limit'); ?>" name="<?php echo $this->get_field_name('limit'); ?>" type="text" value="<?php echo $limit; ?>" size='3' />
+            </label>
+        </p>
+        <p>
+            <label for="<?php echo $this->get_field_id('highlight_first'); ?>">
+                <input type="checkbox" <?php echo checked($highlight_first, 1, false ) ?> class="widefat" id="<?php echo $this->get_field_id('highlight_first') ?>" name="<?php echo $this->get_field_name('highlight_first') ?>" type="text" value="1" />
+                <?php _e('Highlight first item','vsmeet_domain'); ?>
+            </label>
+        </p>
+        <p>
+            <label for="<?php echo $this->get_field_id('date_format'); ?>">
+                <?php _e('Date Format:','vsmeet_domain'); ?>
+                <input class="widefat" id="<?php echo $this->get_field_id('date_format'); ?>" name="<?php echo $this->get_field_name('date_format'); ?>" type="text" value="<?php echo $date_format; ?>" />
+            </label>
+        </p>
+    <?php }
+} // class VsMeetGroupsListWidget
