@@ -1,13 +1,16 @@
 <?php
 /*
- * Plugin Name: Meetup Widgets
+ * Plugin Name: Meetup Widgets (forked for PHPSP)
  * Description: Add widgets displaying information from Meetup.com
- * Version: 2.2.0
- * Author: Kelly Dwan
- * Author URI: http://redradar.net
- * Plugin URI: http://redradar.net/category/plugins/meetup-widgets/
+ * Version: 2.3.2
+ * Original Author: Kelly Dwan
+ * Original Author URI: http://redradar.net
+ * Original Plugin URI: http://redradar.net/category/plugins/meetup-widgets/
+ * Author: Joao Paulo
+ * Author URI: https://github.com/jpjoao/
+ * Plugin URI: https://github.com/jpjoao/Meetup-Widgets/
  * License: GPL2
- * Date: 5.30.2013
+ * Date: 2015-07-02
  */
 
 /** 

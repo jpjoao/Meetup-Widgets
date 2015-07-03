@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/us/cgi-bin/webscr?cmd=_flow&SESSION=7OzM1TYh
 Tags: meetup, meetups, meetup.com, widget
 Requires at least: 3.3
 Tested up to: 4.2.2
-Stable tag: 2.3.1
+Stable tag: 2.3.2
 
 Adds widgets displaying information from a meetup.com group.
 
@@ -45,6 +45,9 @@ If your meetup group is set up at meetup.com/`[group URL name]`, the part after 
 2. Example of the upcoming event list widget. Lists a set number of events from the group you specify, title & date.
 
 == Upgrade Notice ==
+
+= 2.3.2 =
+* Fix plugin version and notify fork.
 
 = 2.3.1 =
 * Added option to use multiple mettups IDs as source (comma separated)
