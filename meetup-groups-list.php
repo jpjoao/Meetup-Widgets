@@ -9,12 +9,7 @@ foreach ( $events as $event ) {
     if (++$count > $limit)
         break;
 
-    if ( preg_match('/[a-zA-Z]/', $highlight_group ) )
-        $this_group = $event->group->urlname;
-    else
-        $this_group = $event->group->id;
-
-    if ($this_group == $highlight_group)
+    if (in_array(strtolower($event->group->urlname), $highlight_groups))
     {
         echo  '<li class="highlight">';
     }

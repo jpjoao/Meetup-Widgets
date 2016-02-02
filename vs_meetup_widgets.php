@@ -278,14 +278,15 @@ class VsMeetWidget extends VsMeet{
     /**
      * Get the HTML for groups events via Meetup API
      *
-     * @param string  $id               Meetup ID or URL name
+     * @param string  $ids               Meetup ID or URL name
      * @param int     $limit            Number of events to display, default 5.
-     * @param int     $highlight_first  Highlight or not the first item in the list
+     * @param bool     $highlight_first  Highlight or not the first item in the list
+     * @param string     $highlight_groups  Highlight or not the first item in the list
      * @param string  $date_format      Format to display the event date
      *
      * @return string Event list formatted for display in widget
      */
-    public function get_groups_events( $ids, $limit = 10, $highlight_first = true, $date_format = 'd/m/Y @ g:i a' ){
+    public function get_groups_events( $ids, $limit = 10, $highlight_first = true, $highlight_groups = '', $date_format = 'd/m/Y @ g:i a' ){
         global $events;
 
         $events = array();
@@ -333,11 +334,20 @@ class VsMeetWidget extends VsMeet{
                 return $a->time < $b->time ? -1 : 1;
             });
 
+            if (strpos($highlight_groups, ',') !== false)
+            {
+                $highlight_groups = explode(',', $highlight_groups);
+            }
+            else
+            {
+                $highlight_groups = array($highlight_groups);
+            }
+
             ob_start();
             set_query_var('date_format', $date_format);
             set_query_var('highlight_first', $highlight_first);
             set_query_var('limit', $limit);
-            set_query_var('highlight_group', $ids[0]);
+            set_query_var('highlight_groups', $highlight_groups);
             get_template_part( 'meetup-list', 'group' );
             $out = ob_get_contents();
 
@@ -785,13 +795,14 @@ class VsMeetGroupsListWidget extends WP_Widget {
         $ids = $instance['ids']; // meetup IDs or URL names
         $limit = intval($instance['limit']);
         $highlight_first = $instance['highlight_first'];
+        $highlight_groups = $instance['highlight_groups'];
         $date_format = $instance['date_format'];
 
         echo $before_widget;
         if ( $title ) echo $before_title . $title . $after_title;
         if ( $ids ) {
             $vsm = new VsMeetWidget();
-            $html = $vsm->get_groups_events( $ids, $limit, $highlight_first, $date_format );
+            $html = $vsm->get_groups_events( $ids, $limit, $highlight_first, $highlight_groups, $date_format );
             echo $html;
         }
         echo $after_widget;
@@ -804,6 +815,7 @@ class VsMeetGroupsListWidget extends WP_Widget {
         $instance['ids'] = strtolower(str_replace( ' ', '', $new_instance['ids'] ));
         $instance['limit'] = intval($new_instance['limit']);
         $instance['highlight_first'] = $new_instance['highlight_first'];
+        $instance['highlight_groups'] = $new_instance['highlight_groups'];
         $instance['date_format'] = $new_instance['date_format'];
 
         return $instance;
@@ -816,12 +828,14 @@ class VsMeetGroupsListWidget extends WP_Widget {
             $ids = esc_attr($instance['ids']); // -> it's a name if it contains any a-zA-z, otherwise ID
             $limit = intval($instance['limit']);
             $highlight_first = esc_attr($instance['highlight_first']);
+            $highlight_groups = esc_attr($instance['highlight_groups']);
             $date_format = esc_attr($instance['date_format']);
         } else {
             $title = '';
             $ids = '';
             $limit = 10;
             $highlight_first = 1;
+			$highlight_groups = '';
             $date_format = 'd/m @ H:i';
         }
         ?>
@@ -835,6 +849,12 @@ class VsMeetGroupsListWidget extends WP_Widget {
             <label for="<?php echo $this->get_field_id('ids'); ?>">
                 <?php _e('Group IDs:','vsmeet_domain'); ?>
                 <input class="widefat" id="<?php echo $this->get_field_id('ids'); ?>" name="<?php echo $this->get_field_name('ids'); ?>" type="text" value="<?php echo $ids; ?>" />
+            </label>
+        </p>
+        <p>
+            <label for="<?php echo $this->get_field_id('highlight_groups'); ?>">
+                <?php _e('Highlight Group IDs:','vsmeet_domain'); ?>
+                <input class="widefat" id="<?php echo $this->get_field_id('ids'); ?>" name="<?php echo $this->get_field_name('highlight_groups'); ?>" type="text" value="<?php echo $highlight_groups; ?>" />
             </label>
         </p>
         <p>
